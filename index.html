@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brother EuroCIS 25 Frozen Joghurt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('messe.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: #4D4D4D;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .url-scheme {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="Bluebar.jpg" alt="Logo" class="logo">
+        <h1>Brother EuroCIS 25</h1>
+        <h2>Frozen Joghurt</h2>
+        <div class="section">
+            <h2>Name:</h2>
+            <input type="text" id="customerName" placeholder="Dein Name">
+        </div>
+        <div class="section">
+            <h2>Wähle deine Soße:</h2>
+            <select id="sauce">
+                <option value="Karamell">Karamell</option>
+                <option value="Weiße Schokolade">Weiße Schokolade</option>
+                <option value="Dunkle Schokolade">Dunkle Schokolade</option>
+                <option value="Erdbeere">Erdbeere</option>
+                <option value="Mango">Mango</option>
+            </select>
+        </div>
+        <div class="section">
+            <h2>Wähle bis zu 3 Toppings:</h2>
+            <input type="checkbox" name="toppings" value="Schokolinsen"> Schokolinsen<br>
+            <input type="checkbox" name="toppings" value="Schokostreusel"> Schokostreusel<br>
+            <input type="checkbox" name="toppings" value="Haselnusskrokant"> Haselnusskrokant<br>
+            <input type="checkbox" name="toppings" value="Bunte Streusel"> Bunte Streusel<br>
+            <input type="checkbox" name="toppings" value="Kokosraspeln"> Kokosraspeln<br>
+            <input type="checkbox" name="toppings" value="Knusper-Müsli"> Knusper-Müsli<br>
+            <input type="checkbox" name="toppings" value="Schoko-Knusper-Müsli"> Schoko-Knusper-Müsli<br>
+            <input type="checkbox" name="toppings" value="Erdbeeren"> Erdbeeren<br>
+            <input type="checkbox" name="toppings" value="Blaubeeren"> Blaubeeren<br>
+            <input type="checkbox" name="toppings" value="Sauerkirschen"> Sauerkirschen<br>
+        </div>
+        <button onclick="showSummary()">Absenden</button>
+        <div id="summary" class="section"></div>
+        <div class="buttons">
+            <button id="printButton" style="display:none;" onclick="sendToPrint()">Zum Drucken senden</button>
+            <button id="previewButton" style="display:none;" onclick="previewLink()">Preview Link</button>
+        </div>
+        <div id="urlScheme" class="url-scheme" style="display:none;">
+            <h3>Smooth Print URL Scheme</h3>
+            <p id="urlSchemeText"></p>
+        </div>
+    </div>
+    <script>
+        function showSummary() {
+            const customerName = document.getElementById('customerName').value;
+            const sauce = document.getElementById('sauce').value;
+            const toppings = Array.from(document.querySelectorAll('input[name="toppings"]:checked')).map(el => el.value);
+
+            if (toppings.length > 3) {
+                alert("Du kannst nur bis zu 3 Toppings auswählen.");
+                return;
+            }
+
+            const summary = `
+                <h2>Dein Frozen Joghurt</h2>
+                <p><strong>Name:</strong> ${customerName}</p>
+                <p><strong>Soße:</strong> ${sauce}</p>
+                <p><strong>Toppings:</strong> ${toppings.join(', ')}</p>
+            `;
+
+            document.getElementById('summary').innerHTML = summary;
+            document.getElementById('printButton').style.display = 'block';
+            document.getElementById('previewButton').style.display = 'block';
+        }
+
+        function sendToPrint() {
+            const url = generateUrlScheme();
+            window.open(url, '_blank');
+            resetInputs();
+        }
+
+        function previewLink() {
+            const url = generateUrlScheme();
+            document.getElementById('urlSchemeText').textContent = url;
+            document.getElementById('urlScheme').style.display = 'block';
+        }
+
+        function generateUrlScheme() {
+            const customerName = document.getElementById('customerName').value;
+            const sauce = document.getElementById('sauce').value;
+            const toppings = Array.from(document.querySelectorAll('input[name="toppings"]:checked')).map(el => el.value).join(',');
+
+            return `brotherwebprint://print?filename=joghurt.lbx&size=58.bin&text_name=${encodeURIComponent(customerName)}&text_sauce=${encodeURIComponent(sauce)}&text_toppings=${encodeURIComponent(toppings)}`;
+        }
+
+        function resetInputs() {
+            document.getElementById('customerName').value = '';
+            document.getElementById('sauce').selectedIndex = 0;
+            document.querySelectorAll('input[name="toppings"]').forEach(checkbox => checkbox.checked = false);
+            document.getElementById('summary').innerHTML = '';
+            document.getElementById('printButton').style.display = 'none';
+            document.getElementById('previewButton').style.display = 'none';
+            document.getElementById('urlScheme').style.display = 'none';
+        }
+
+        // Limit the selection of toppings to a maximum of 3
+        document.querySelectorAll('input[name="toppings"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const checkedToppings = document.querySelectorAll('input[name="toppings"]:checked');
+                if (checkedToppings.length > 3) {
+                    this.checked = false;
+                    alert("Du kannst nur bis zu 3 Toppings auswählen.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
